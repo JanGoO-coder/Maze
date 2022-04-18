@@ -4,22 +4,21 @@ from generator import recursive_backtrack
 import pygame, time
 pygame.init()
 
-W = 600
-H = 600
-C = 50
+W = 1920
+H = 900
+C = 15
 
 window = pygame.display.set_mode((W, H))
 pygame.display.set_caption("Maze")
+
+# change icon of window
+icon = pygame.image.load("./assets/maze-icon.svg")
+pygame.display.set_icon(icon)
 
 maze = Maze(W, H, C)
 
 def loop():
     isGenerated = False
-
-    # set frame rate
-    clock = pygame.time.Clock()
-    FPS = 60
-    clock.tick(FPS)
 
     isRunning = True
     while isRunning:

@@ -4,7 +4,6 @@ stack = []
 visited = []
 
 def recursive_backtrack(window, maze):
-
     maze.draw_maze(window)
 
     visited = [[False for i in range(maze.cols)] for j in range(maze.rows)]
@@ -57,8 +56,7 @@ def recursive_backtrack(window, maze):
             if direction == 'right':
                 maze.back_right()
 
-        pygame.time.delay(50)
+        # pygame.time.delay(50)
         maze.draw_maze(window)
-    return
 
     
