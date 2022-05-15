@@ -1,12 +1,13 @@
 from maze import Maze
 from generator import recursive_backtrack
+from pathfinder import find_path
 
 import pygame, time
 pygame.init()
 
-W = 1920
-H = 900
-C = 15
+W = 1000
+H = 800
+C = 20
 
 window = pygame.display.set_mode((W, H))
 pygame.display.set_caption("Maze")
@@ -28,6 +29,10 @@ def loop():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     isRunning = False
+                if event.key == pygame.K_g:
+                    maze.to_graph()
+                if event.key == pygame.K_f:
+                    find_path(window, maze)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     isRunning = True

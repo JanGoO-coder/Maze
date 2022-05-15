@@ -56,7 +56,7 @@ def recursive_backtrack(window, maze):
             if direction == 'right':
                 maze.back_right()
 
-        # pygame.time.delay(50)
+        # pygame.time.delay(10)
         maze.draw_maze(window)
 
     

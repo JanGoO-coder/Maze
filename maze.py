@@ -1,10 +1,14 @@
 import pygame, random
+import networkx as nx
+import matplotlib.pyplot as plt
 
 class Maze:
     def __init__(self, w, h, c):
         self.rows = (h - 100) // c
         self.cols = (w - 100) // c
         self.cell_size = c
+        self.edges = []
+        self.graph = None
 
         # self.maze[row][col][0] == 'W' is for white rectangle
         # self.maze[row][col][0] == 'G' is for grey rectangle
@@ -54,15 +58,27 @@ class Maze:
         if direction == 'up':
             self.maze[row][col][1] = '0'
             self.maze[row - 1][col][2] = '0'
+            index = row * self.cols + col
+            next_index = (row - 1) * self.cols + col
+            self.edges.append((index, next_index))
         if direction == 'down':
             self.maze[row][col][2] = '0'
             self.maze[row + 1][col][1] = '0'
+            index = row * self.cols + col
+            next_index = (row + 1) * self.cols + col
+            self.edges.append((index, next_index))
         if direction == 'left':
             self.maze[row][col][3] = '0'
             self.maze[row][col - 1][4] = '0'
+            index = row * self.cols + col
+            next_index = row * self.cols + col - 1
+            self.edges.append((index, next_index))
         if direction == 'right':
             self.maze[row][col][4] = '0'
             self.maze[row][col + 1][3] = '0'
+            index = row * self.cols + col
+            next_index = row * self.cols + col + 1
+            self.edges.append((index, next_index))
 
     def move_up(self):
         if self.current_row > 0 and self.maze[self.current_row - 1][self.current_col][0] != 'W':
@@ -150,8 +166,9 @@ class Maze:
         window.fill((255, 255, 255))
 
         offset = 50
-        padding = 5
+        padding = 6
         color = (255, 255, 255)
+        ww = 1 # wall width
 
         # draw rectangle around maze
         pygame.draw.rect(window, (0, 0, 0), (offset - padding, offset - padding, self.cols * self.cell_size + padding * 2, self.rows * self.cell_size + padding * 2), padding)
@@ -174,27 +191,58 @@ class Maze:
                 pygame.draw.rect(window, color, (col * self.cell_size + padding + offset, row * self.cell_size + padding + offset, self.cell_size - padding * 2, self.cell_size - padding * 2))
                 
                 if self.maze[row][col][1] == '1': # top wall
-                    pygame.draw.line(window, (0, 0, 0), (col * self.cell_size + offset, row * self.cell_size + offset), (col * self.cell_size + offset, row * self.cell_size + self.cell_size + offset), 1)
+                    pygame.draw.line(window, (0, 0, 0), (col * self.cell_size + offset, row * self.cell_size + offset), (col * self.cell_size + offset, row * self.cell_size + self.cell_size + offset), ww)
                 if self.maze[row][col][2] == '1': # bottom wall
-                    pygame.draw.line(window, (0, 0, 0), (col * self.cell_size + offset, row * self.cell_size + self.cell_size + offset), (col * self.cell_size + self.cell_size + offset, row * self.cell_size + self.cell_size + offset), 1)
+                    pygame.draw.line(window, (0, 0, 0), (col * self.cell_size + offset, row * self.cell_size + self.cell_size + offset), (col * self.cell_size + self.cell_size + offset, row * self.cell_size + self.cell_size + offset), ww)
                 if self.maze[row][col][3] == '1': # left wall
-                    pygame.draw.line(window, (0, 0, 0), (col * self.cell_size + offset, row * self.cell_size + offset), (col * self.cell_size + offset, row * self.cell_size + self.cell_size + offset), 1)
+                    pygame.draw.line(window, (0, 0, 0), (col * self.cell_size + offset, row * self.cell_size + offset), (col * self.cell_size + offset, row * self.cell_size + self.cell_size + offset), ww)
                 if self.maze[row][col][4] == '1': # right wall
-                    pygame.draw.line(window, (0, 0, 0), (col * self.cell_size + self.cell_size + offset, row * self.cell_size + offset), (col * self.cell_size + self.cell_size + offset, row * self.cell_size + self.cell_size + offset), 1)
+                    pygame.draw.line(window, (0, 0, 0), (col * self.cell_size + self.cell_size + offset, row * self.cell_size + offset), (col * self.cell_size + self.cell_size + offset, row * self.cell_size + self.cell_size + offset), ww)
                
                 # if self.maze[row][col][1] == '0': # top wall
-                #     pygame.draw.line(window, (255, 255, 255), (col * self.cell_size + offset, row * self.cell_size + offset), (col * self.cell_size + offset, row * self.cell_size + self.cell_size + offset), 1)
+                #     pygame.draw.line(window, (255, 255, 255), (col * self.cell_size + offset, row * self.cell_size + offset), (col * self.cell_size + offset, row * self.cell_size + self.cell_size + offset), ww)
                 if self.maze[row][col][2] == '0': # bottom wall
-                    pygame.draw.line(window, (255, 255, 255), (col * self.cell_size + offset, row * self.cell_size + self.cell_size + offset), (col * self.cell_size + self.cell_size + offset, row * self.cell_size + self.cell_size + offset), 1)
+                    pygame.draw.line(window, (255, 255, 255), (col * self.cell_size + offset, row * self.cell_size + self.cell_size + offset), (col * self.cell_size + self.cell_size + offset, row * self.cell_size + self.cell_size + offset), ww)
                 if self.maze[row][col][3] == '0': # left wall
-                    pygame.draw.line(window, (255, 255, 255), (col * self.cell_size + offset, row * self.cell_size + offset), (col * self.cell_size + offset, row * self.cell_size + self.cell_size + offset), 1)
+                    pygame.draw.line(window, (255, 255, 255), (col * self.cell_size + offset, row * self.cell_size + offset), (col * self.cell_size + offset, row * self.cell_size + self.cell_size + offset), ww)
                 # if self.maze[row][col][4] == '0': # right wall
-                #     pygame.draw.line(window, (255, 255, 255), (col * self.cell_size + self.cell_size + offset, row * self.cell_size + offset), (col * self.cell_size + self.cell_size + offset, row * self.cell_size + self.cell_size + offset), 1)
+                #     pygame.draw.line(window, (255, 255, 255), (col * self.cell_size + self.cell_size + offset, row * self.cell_size + offset), (col * self.cell_size + self.cell_size + offset, row * self.cell_size + self.cell_size + offset), ww)
                 
         pygame.display.update()
+
+    def to_graph(self):
+        g = nx.Graph()
+        no_of_cells = self.rows * self.cols
+
+        g.add_nodes_from([i for i in range(no_of_cells)])
+
+        colors = ["grey" for i in range(no_of_cells)]
+        colors[self.start_row * self.cols + self.start_col] = "red"
+        colors[self.end_row * self.cols + self.end_col] = "green"
+
+        self.start_node = self.start_row * self.cols + self.start_col
+        self.end_node = self.end_row * self.cols + self.end_col
+
+        self.nodes_data = []
+
+        for row in range(self.rows):
+            for col in range(self.cols):
+                self.nodes_data.append({
+                    "id": row * self.cols + col,
+                    "x": col,
+                    "y": row,
+                })
+
+        g.add_edges_from(self.edges)
+
+        self.graph = g
+        nx.draw(g, with_labels=True, node_color=colors)
+        # plt.show()
+
+        return g
 
     def print_maze_data(self):
         for row in self.maze:
             for cell in row:
-                print(cell, end=" ")
+                print(f"{cell[0]}{cell[1]}{cell[2]}{cell[3]}{cell[4]}", end=" ")
             print()
