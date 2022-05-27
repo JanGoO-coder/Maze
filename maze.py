@@ -237,7 +237,7 @@ class Maze:
 
         self.graph = g
         nx.draw(g, with_labels=True, node_color=colors)
-        # plt.show()
+        plt.show()
 
         return g
 

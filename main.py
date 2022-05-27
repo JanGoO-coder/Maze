@@ -5,9 +5,9 @@ from pathfinder import find_path
 import pygame, time
 pygame.init()
 
-W = 1000
-H = 800
-C = 20
+W = 500
+H = 500
+C = 50
 
 window = pygame.display.set_mode((W, H))
 pygame.display.set_caption("Maze")

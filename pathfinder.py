@@ -11,7 +11,7 @@ def find_path(window, maze):
     for i in range(len(path) - 1):
         new_g.add_edge(path[i], path[i+1])
     nx.draw(new_g, with_labels=True)
-    # plt.show()
+    plt.show()
 
     rows = []
     cols = []
